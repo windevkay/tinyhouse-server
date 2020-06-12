@@ -1,6 +1,7 @@
 import { IResolvers } from 'apollo-server-express';
 
-import { listings, Listing } from '../listings';
+import { listings } from '../listings';
+import { Listing } from '../types/types';
 
 export const resolvers: IResolvers = {
     Query: {
