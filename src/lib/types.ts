@@ -1,18 +1,7 @@
 //Types for MongoDB
-import { ObjectId, Collection } from 'mongodb';
-
-export interface Listing {
-    _id: ObjectId;
-    title: string;
-    image: string;
-    address: string;
-    price: number;
-    numOfGuests: number;
-    numOfBeds: number;
-    numOfBaths: number;
-    rating: number;
-}
+import { Collection } from 'mongodb';
+import { ListingEntity } from '../types/types';
 
 export interface Database {
-    listings: Collection<Listing>;
+    listings: Collection<ListingEntity>;
 }
