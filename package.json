@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/index.ts",
     "build": "tsc -p ./",
-    "generate-types": "graphql-codegen"
+    "generate-types": "graphql-codegen",
+    "seed": "ts-node mocks/seed.ts"
   },
   "author": "Kola Adebayo",
   "license": "MIT",

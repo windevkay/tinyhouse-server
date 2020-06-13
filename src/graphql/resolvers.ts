@@ -1,22 +1,23 @@
 import { IResolvers } from 'apollo-server-express';
 
-import { listings } from '../listings';
-import { Listing } from '../types/types';
+import { Database, Listing } from '../lib/types';
+import ListingsService from '../services/listings.service';
+
+const listingsService = new ListingsService();
 
 export const resolvers: IResolvers = {
     Query: {
-        listings: (): Listing[] => {
-            return listings;
+        listings: async (_root: undefined, _args: unknown, { db }: { db: Database }): Promise<Listing[]> => {
+            return await listingsService.queryAllListings({ db });
         },
     },
     Mutation: {
-        deleteListing: (_root: undefined, { id }: { id: string }): Listing => {
-            for (let i = 0; i < listings.length; i++) {
-                if (listings[i].id === id) {
-                    return listings.splice(i, 1)[0];
-                }
-            }
-            throw new Error('failed to delete listing');
+        deleteListing: async (_root: undefined, { id }: { id: string }, { db }: { db: Database }): Promise<Listing> => {
+            return await listingsService.mutationDeleteListing({ db, id });
         },
+    },
+    //we need to explicitly resolve our schema id to the _id of mongo db
+    Listing: {
+        id: (listing: Listing): string => listing._id.toString(),
     },
 };
