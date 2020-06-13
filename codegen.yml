@@ -2,4 +2,6 @@ schema: ./src/graphql/typeDefs.ts
 generates:
   ./src/types/types.d.ts:
     plugins:
-      - typescript
+      - typescript-mongodb
+    config:
+      dbTypeSuffix: Entity

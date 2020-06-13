@@ -1,16 +1,17 @@
 import { ObjectId } from 'mongodb';
 
-import { Database, Listing } from '../lib/types';
+import { Database } from '../lib/types';
+import { ListingEntity } from '../types/types';
 
 export default class ListingsService {
     /**
      * Return all listings
      * @param params database object
      */
-    public queryAllListings = async (params: { db: Database }): Promise<Listing[]> => {
+    public queryAllListings = async (params: { db: Database }): Promise<ListingEntity[]> => {
         const { db } = params;
         try {
-            const listings: Listing[] = await db.listings.find({}).toArray();
+            const listings: ListingEntity[] = await db.listings.find({}).toArray();
             return Promise.resolve(listings);
         } catch (error) {
             return Promise.reject(error);
@@ -21,7 +22,7 @@ export default class ListingsService {
      * Delete a listing
      * @param params database object and document id
      */
-    public mutationDeleteListing = async (params: { db: Database; id: string }): Promise<Listing> => {
+    public mutationDeleteListing = async (params: { db: Database; id: string }): Promise<ListingEntity> => {
         const { db, id } = params;
         try {
             const deleteRes = await db.listings.findOneAndDelete({
