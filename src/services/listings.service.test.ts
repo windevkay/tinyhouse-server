@@ -48,9 +48,7 @@ describe('MUTATIONS', () => {
         await db.listings.insertOne(mockListing);
         await listingsService.mutationDeleteListing({ db, id: '507c7f79bcf86cd7994f6c0e' });
 
-        const listingsLeft: ListingEntity[] = await listingsService.queryAllListings({ db });
-        for (let i = 0; i < listingsLeft.length; i++) {
-            expect(listingsLeft[i]._id).not.toBe('507c7f79bcf86cd7994f6c0e');
-        }
+        const checkDocument = await db.listings.findOne({ _id: mockListingId });
+        expect(checkDocument).toBeNull();
     });
 });
