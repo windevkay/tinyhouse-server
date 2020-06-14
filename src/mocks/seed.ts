@@ -3,14 +3,14 @@ require('dotenv').config();
 
 import { ObjectId } from 'mongodb';
 
-import { connectDatabase } from '../src/database';
-import { Listing } from '../src/lib/types';
+import { connectDatabase } from '../database';
+import { ListingEntity } from '../types/types';
 
 const seed = async () => {
     try {
         console.log('[seed] : running...');
         const db = await connectDatabase();
-        const listings: Listing[] = [
+        const listings: ListingEntity[] = [
             {
                 _id: new ObjectId(),
                 title: 'Clean and fully furnished apartment. 5 min away from CN Tower',
