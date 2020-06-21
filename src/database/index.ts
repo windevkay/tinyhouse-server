@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 import { Database } from '../lib/types';
+import { ListingEntity, UserEntity, BookingEntity } from '../types/types';
 
 const user = process.env.DB_USER;
 const userPassword = process.env.DB_USER_PASSWORD;
@@ -18,7 +19,9 @@ export const connectDatabase = async (): Promise<Database> => {
         const db = client.db('main');
 
         return {
-            listings: db.collection('test_listings'),
+            bookings: db.collection<BookingEntity>('bookings'),
+            listings: db.collection<ListingEntity>('listings'),
+            users: db.collection<UserEntity>('users'),
         };
     } catch (error) {
         return Promise.reject('could not establish connection to mongodb');
