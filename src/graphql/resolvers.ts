@@ -1,28 +1,30 @@
 import { IResolvers } from 'apollo-server-express';
 
-import { Database, ListingEntity } from '../lib/types';
+import { Viewer, LoginArgs, Database } from '../lib/types';
 
-import ListingsService from '../services/listings.service';
+import AuthService from '../services/auth.service';
 
-const listingsService = new ListingsService();
+const authService = new AuthService();
 
 export const resolvers: IResolvers = {
     Query: {
-        listings: async (_root: undefined, _args: unknown, { db }: { db: Database }): Promise<ListingEntity[]> => {
-            return await listingsService.queryAllListings({ db });
-        },
+        //AUTH
+        authUrl: async (): Promise<string> => await authService.queryAuthUrl(),
     },
     Mutation: {
-        deleteListing: async (
-            _root: undefined,
-            { id }: { id: string },
-            { db }: { db: Database },
-        ): Promise<ListingEntity> => {
-            return await listingsService.mutationDeleteListing({ db, id });
-        },
+        //AUTH
+        logIn: async (_root: undefined, { input }: LoginArgs, { db }: { db: Database }): Promise<Viewer> =>
+            await authService.mutationLogin({ input, db }),
+
+        logOut: (): string => 'Mutation.logOut',
     },
-    //we need to explicitly resolve our schema id to the _id of mongo db
-    Listing: {
-        id: (listing: ListingEntity): string => listing._id.toString(),
+    //resolving some fields
+    Viewer: {
+        id: (viewer: Viewer): string | undefined => {
+            return viewer._id;
+        },
+        hasWallet: (viewer: Viewer): boolean | undefined => {
+            return viewer.walletId ? true : undefined;
+        },
     },
 };

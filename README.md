@@ -11,6 +11,8 @@ Resolvers call on service files where majority of code logic is domiciled.
 
 Jest is being used for testing of all individual services.
 
+Google OAuth is being used for as an outsourced service for user authentication
+
 ## Available Scripts
 
 In the project directory, you can run:

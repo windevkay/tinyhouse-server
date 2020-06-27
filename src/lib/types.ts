@@ -1,5 +1,5 @@
-//Custom Types for MongoDB
 import { Collection, ObjectId } from 'mongodb';
+import { people_v1 } from 'googleapis';
 
 export enum ListingType {
     Apartment = 'APARTMENT',
@@ -16,6 +16,14 @@ export interface BookingsIndexYear {
 
 export interface BookingsIndex {
     [key: string]: BookingsIndexYear;
+}
+
+export interface Viewer {
+    _id?: string;
+    token?: string;
+    avatar?: string;
+    walletId?: string;
+    didRequest?: boolean;
 }
 
 export interface UserEntity {
@@ -59,4 +67,16 @@ export interface Database {
     bookings: Collection<BookingEntity>;
     listings: Collection<ListingEntity>;
     users: Collection<UserEntity>;
+}
+
+export interface GoogleAuthUrl {
+    user: people_v1.Schema$Person;
+}
+
+export interface LoginArgs {
+    input: LogInInput | null;
+}
+
+export interface LogInInput {
+    code: string;
 }
