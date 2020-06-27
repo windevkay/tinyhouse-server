@@ -1,7 +1,6 @@
 import { ObjectId } from 'mongodb';
 
-import { Database } from '../lib/types';
-import { ListingEntity } from '../types/types';
+import { Database, ListingEntity } from '../lib/types';
 
 export default class ListingsService {
     /**

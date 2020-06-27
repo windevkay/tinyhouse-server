@@ -6,10 +6,19 @@ export const typeDefs = gql`
         HOUSE
     }
 
+    scalar BookingsIndexMonth {
+        [key: string]: Boolean!;
+    }
+
+    scalar BookingsIndexYear {
+        [key: string]: BookingsIndexMonth!;
+    }
+
     type Listing @entity {
         id: ID! @id
         title: String! @column
         description: String! @column
+        image: String! @column
         host: User! @link
         type: ListingType! @column
         address: String! @column
@@ -17,6 +26,7 @@ export const typeDefs = gql`
         admin: String! @column
         city: String! @column
         bookings: [Booking]! @link
+        bookingsIndex: BookingsIndexYear! @column
     }
 
     type User @entity {

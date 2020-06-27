@@ -3,7 +3,6 @@ require('dotenv').config();
 
 import express, { Application } from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { DIRECTIVES } from '@graphql-codegen/typescript-mongodb';
 
 import { connectDatabase } from './database';
 
@@ -15,7 +14,7 @@ const mount = async (app: Application) => {
     const db = await connectDatabase();
     // create apollo server
     const server = new ApolloServer({
-        typeDefs: [DIRECTIVES, typeDefs],
+        typeDefs,
         resolvers,
         context: () => ({ db }),
     });

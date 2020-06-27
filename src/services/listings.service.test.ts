@@ -1,13 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-import { ObjectId } from 'mongodb';
+//import { ObjectId } from 'mongodb';
 
 import { connectDatabase } from '../database';
 
 import ListingsService from './listings.service';
-import { Database } from '../lib/types';
-import { ListingEntity } from '../types/types';
+import { Database, ListingEntity } from '../lib/types';
 
 const listingsService = new ListingsService();
 
@@ -25,30 +24,9 @@ describe('QUERIES', () => {
 });
 
 describe('MUTATIONS', () => {
-    let db: Database;
-    beforeAll(async () => {
-        db = await connectDatabase();
-    });
-
-    test('Given a listingID, the method should delete it', async () => {
-        //seed db with mock data first before testing a delete
-        const mockListingId = new ObjectId('507c7f79bcf86cd7994f6c0e');
-        const mockListing: ListingEntity = {
-            _id: mockListingId,
-            title: 'Clean and fully furnished apartment. 5 min away from CN Tower',
-            image:
-                'https://res.cloudinary.com/tiny-house/image/upload/v1560641352/mock/Toronto/toronto-listing-1_exv0tf.jpg',
-            address: '3210 Scotchmere Dr W, Toronto, ON, CA',
-            price: 10000,
-            numOfGuests: 2,
-            numOfBeds: 1,
-            numOfBaths: 2,
-            rating: 5,
-        };
-        await db.listings.insertOne(mockListing);
-        await listingsService.mutationDeleteListing({ db, id: '507c7f79bcf86cd7994f6c0e' });
-
-        const checkDocument = await db.listings.findOne({ _id: mockListingId });
-        expect(checkDocument).toBeNull();
-    });
+    // let db: Database;
+    // beforeAll(async () => {
+    //     db = await connectDatabase();
+    // });
+    //mutation tests go here
 });

@@ -1,7 +1,6 @@
 import { IResolvers } from 'apollo-server-express';
 
-import { Database } from '../lib/types';
-import { ListingEntity } from '../types/types';
+import { Database, ListingEntity } from '../lib/types';
 
 import ListingsService from '../services/listings.service';
 
