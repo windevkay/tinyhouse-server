@@ -1,4 +1,5 @@
 import { IResolvers } from 'apollo-server-express';
+import { Response, Request } from 'express';
 
 import { Viewer, LoginArgs, Database } from '../lib/types';
 
@@ -13,10 +14,14 @@ export const resolvers: IResolvers = {
     },
     Mutation: {
         //AUTH
-        logIn: async (_root: undefined, { input }: LoginArgs, { db }: { db: Database }): Promise<Viewer> =>
-            await authService.mutationLogin({ input, db }),
+        logIn: async (
+            _root: undefined,
+            { input }: LoginArgs,
+            { db, req, res }: { db: Database; req: Request; res: Response },
+        ): Promise<Viewer> => await authService.mutationLogin({ input, db, res, req }),
 
-        logOut: (): Viewer => authService.mutationLogOut(),
+        logOut: (_root: undefined, _args: undefined, { res }: { res: Response }): Viewer =>
+            authService.mutationLogOut({ res }),
     },
     //resolving some fields
     Viewer: {

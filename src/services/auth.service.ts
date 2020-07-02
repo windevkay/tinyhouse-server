@@ -1,9 +1,17 @@
 import { Google } from './requests';
 import crypto from 'crypto';
+import { Response, Request } from 'express';
 
 import { LogInInput, GoogleAuthUrl, Database, UserEntity, Viewer } from '../lib/types';
 
 export default class AuthService {
+    //cookie options
+    cookieOptions = {
+        httpOnly: true,
+        sameSite: true,
+        signed: true,
+        secure: process.env.NODE_ENV === 'development' ? false : true,
+    };
     /**
      * Query Google for the authenticaiton URL
      * @param none
@@ -19,16 +27,21 @@ export default class AuthService {
      * Login via google
      * @param params logininput and database object
      */
-    public mutationLogin = async (params: { input: LogInInput | null; db: Database }): Promise<Viewer> => {
-        const { input, db } = params;
+    public mutationLogin = async (params: {
+        input: LogInInput | null;
+        db: Database;
+        res: Response;
+        req: Request;
+    }): Promise<Viewer> => {
+        const { input, db, res, req } = params;
         try {
             const code = input ? input.code : null;
             //we create a random string for session token
             const token = crypto.randomBytes(16).toString('hex');
 
             const viewer: UserEntity | undefined = code
-                ? await this.middlewareLoginViaGoogle(code, token, db)
-                : undefined;
+                ? await this.middlewareLoginViaGoogle(code, token, db, res)
+                : await this.middlewareLoginViaCookie(token, db, req, res);
             //if no viewer, then return object to show a request was made
             if (!viewer) {
                 return { didRequest: true };
@@ -47,12 +60,41 @@ export default class AuthService {
     };
     /**
      * Logout
+     * @param params response object
      */
-    public mutationLogOut = (): Viewer => {
+    public mutationLogOut = (params: { res: Response }): Viewer => {
+        const { res } = params;
         try {
+            //clear cookie
+            res.clearCookie('viewer', this.cookieOptions);
             return { didRequest: true };
         } catch (error) {
             throw new Error(`Failed to logout: ${error}`);
+        }
+    };
+
+    private middlewareLoginViaCookie = async (
+        token: string,
+        db: Database,
+        req: Request,
+        res: Response,
+    ): Promise<UserEntity | undefined> => {
+        try {
+            const updateRes = await db.users.findOneAndUpdate(
+                { _id: req.signedCookies.viewer },
+                { $set: { token } },
+                { returnOriginal: false },
+            );
+            //assign updated value to viewer
+            const viewer = updateRes.value;
+
+            if (!viewer) {
+                res.clearCookie('viewer', this.cookieOptions);
+            }
+
+            return Promise.resolve(viewer);
+        } catch (error) {
+            return Promise.reject(error);
         }
     };
 
@@ -60,6 +102,7 @@ export default class AuthService {
         code: string,
         token: string,
         db: Database,
+        res: Response,
     ): Promise<UserEntity | undefined> => {
         try {
             const url: GoogleAuthUrl = await Google.logInRequest(code);
@@ -106,8 +149,8 @@ export default class AuthService {
             );
 
             //if no existing user, then insert/create a new one
-            let dbUser = updateRes.value;
-            if (!dbUser) {
+            let viewer = updateRes.value;
+            if (!viewer) {
                 const insertResult = await db.users.insertOne({
                     _id: userId,
                     token,
@@ -119,9 +162,15 @@ export default class AuthService {
                     listings: [],
                 });
 
-                dbUser = insertResult.ops[0];
+                viewer = insertResult.ops[0];
             }
-            return dbUser;
+            //create a cookie called viewer for the user for the response
+            res.cookie('viewer', userId, {
+                ...this.cookieOptions,
+                maxAge: 365 * 24 * 60 * 60 * 1000,
+            });
+
+            return viewer;
         } catch (error) {
             return Promise.reject(`Something went wrong: ${error}`);
         }
