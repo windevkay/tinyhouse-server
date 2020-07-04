@@ -32,3 +32,9 @@ Seed or Clear MongoDB Atlas with data. Said data can be found in the mocks folde
 ### `npm run build`
 
 Compile to Javascript.
+
+## Running the server as a container
+
+docker build -t <your username>/tinyhouseserver .
+
+docker run -p 5555:9000 -d <your username>/tinyhouseserver
