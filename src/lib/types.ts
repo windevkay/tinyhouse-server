@@ -36,6 +36,7 @@ export interface UserEntity {
     income: number;
     bookings: ObjectId[];
     listings: ObjectId[];
+    authorized?: boolean;
 }
 
 export interface ListingEntity {
@@ -79,4 +80,28 @@ export interface LoginArgs {
 
 export interface LogInInput {
     code: string;
+}
+
+export interface UserArgs {
+    id: string;
+}
+
+export interface UserBookingsArgs {
+    limit: number;
+    page: number;
+}
+
+export interface UserBookingsData {
+    total: number;
+    result: BookingEntity[];
+}
+
+export interface UserListingsArgs {
+    limit: number;
+    page: number;
+}
+
+export interface UserListingsData {
+    total: number;
+    result: ListingEntity[];
 }

@@ -4,7 +4,7 @@ import { Response, Request } from 'express';
 
 import { LogInInput, GoogleAuthUrl, Database, UserEntity, Viewer } from '../lib/types';
 
-export default class AuthService {
+export class AuthService {
     //cookie options
     cookieOptions = {
         httpOnly: true,
