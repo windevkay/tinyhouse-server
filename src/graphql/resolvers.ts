@@ -13,12 +13,16 @@ import {
     UserListingsData,
     ListingEntity,
     BookingEntity,
+    ListingArgs,
+    ListingBookingsArgs,
+    ListingBookingsData,
 } from '../lib/types';
 
-import { AuthService, UserService } from '../services';
+import { AuthService, UserService, ListingService } from '../services';
 
 const authService = new AuthService();
 const userService = new UserService();
+const listingService = new ListingService();
 
 export const resolvers: IResolvers = {
     Query: {
@@ -30,6 +34,12 @@ export const resolvers: IResolvers = {
             { id }: UserArgs,
             { db, req }: { db: Database; req: Request },
         ): Promise<UserEntity> => await userService.queryUser({ id, db, req }),
+        //LISTING
+        listing: async (
+            _root: undefined,
+            { id }: ListingArgs,
+            { db, req }: { db: Database; req: Request },
+        ): Promise<ListingEntity> => await listingService.queryListing({ id, db, req }),
     },
     Mutation: {
         //AUTH
@@ -118,6 +128,40 @@ export const resolvers: IResolvers = {
     Listing: {
         id: (listing: ListingEntity): string => {
             return listing._id.toString();
+        },
+        host: async (listing: ListingEntity, _args: undefined, { db }: { db: Database }): Promise<UserEntity> => {
+            const host = await db.users.findOne({ _id: listing.host });
+            if (!host) {
+                throw new Error('Host for listing cannot be found');
+            }
+            return host;
+        },
+        bookingsIndex: (listing: ListingEntity): string => {
+            return JSON.stringify(listing.bookingsIndex);
+        },
+        bookings: async (
+            listing: ListingEntity,
+            { limit, page }: ListingBookingsArgs,
+            { db }: { db: Database },
+        ): Promise<ListingBookingsData | null> => {
+            try {
+                if (!listing.authorized) {
+                    return null;
+                }
+                const data: ListingBookingsData = { total: 0, result: [] };
+                let cursor = await db.bookings.find({
+                    _id: { $in: listing.bookings },
+                });
+                cursor = cursor.skip(page > 0 ? (page - 1) * limit : 0);
+                cursor = cursor.limit(limit);
+
+                data.total = await cursor.count();
+                data.result = await cursor.toArray();
+
+                return Promise.resolve(data);
+            } catch (error) {
+                return Promise.reject(`Failed to query listing bookings: ${error}`);
+            }
         },
     },
 

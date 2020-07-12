@@ -54,6 +54,7 @@ export interface ListingEntity {
     bookingsIndex: BookingsIndex;
     price: number;
     numOfGuests: number;
+    authorized?: boolean;
 }
 
 export interface BookingEntity {
@@ -104,4 +105,18 @@ export interface UserListingsArgs {
 export interface UserListingsData {
     total: number;
     result: ListingEntity[];
+}
+
+export interface ListingArgs {
+    id: string;
+}
+
+export interface ListingBookingsArgs {
+    limit: number;
+    page: number;
+}
+
+export interface ListingBookingsData {
+    total: number;
+    result: BookingEntity[];
 }

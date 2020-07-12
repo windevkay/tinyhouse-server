@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-import AuthService from './auth.service';
+import { AuthService } from './auth.service';
 
 //import express, { Response, Request } from 'express';
 
