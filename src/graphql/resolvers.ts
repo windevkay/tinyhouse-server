@@ -16,6 +16,8 @@ import {
     ListingArgs,
     ListingBookingsArgs,
     ListingBookingsData,
+    ListingsArgs,
+    ListingsData,
 } from '../lib/types';
 
 import { AuthService, UserService, ListingService } from '../services';
@@ -40,6 +42,12 @@ export const resolvers: IResolvers = {
             { id }: ListingArgs,
             { db, req }: { db: Database; req: Request },
         ): Promise<ListingEntity> => await listingService.queryListing({ id, db, req }),
+        //LISTINGS
+        listings: async (
+            _root: undefined,
+            { filter, limit, page }: ListingsArgs,
+            { db }: { db: Database },
+        ): Promise<ListingsData> => await listingService.queryListings({ db, filter, limit, page }),
     },
     Mutation: {
         //AUTH
