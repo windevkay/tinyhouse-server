@@ -3,13 +3,10 @@ require('dotenv').config();
 
 import { AuthService } from './auth.service';
 
-//import express, { Response, Request } from 'express';
+import { response, request } from './__mocks__/express';
 
-//import MockExpressRequest from 'mock-express-request';
-//import MockExpressResponse from 'mock-express-response';
-
-//import { Database, Viewer } from '../lib/types';
-//import { connectDatabase } from '../database';
+import { Database, Viewer } from '../lib/types';
+import { connectDatabase } from '../database';
 
 const authService = new AuthService();
 
@@ -21,10 +18,23 @@ describe('QUERIES', () => {
     });
 });
 
-// describe('MUTATIONS', () => {
-//     //let db: Database;
-//     beforeAll(async () => {
-//         //db = await connectDatabase();
-//         mount(express());
-//     });
-// });
+describe('MUTATIONS', () => {
+    let db: Database;
+    beforeAll(async () => {
+        db = await connectDatabase();
+    });
+    afterAll(async () => {
+        await db.client.close();
+    });
+
+    test('Login mutation returns a Viewer via Cookie', async () => {
+        const loginRequest: Viewer = await authService.mutationLogin({
+            input: null,
+            db,
+            res: response,
+            req: request,
+        });
+        expect(loginRequest).toBeTruthy();
+        expect(loginRequest.didRequest).toEqual(true);
+    });
+});

@@ -21,6 +21,7 @@ export const connectDatabase = async (): Promise<Database> => {
             bookings: db.collection<BookingEntity>('bookings'),
             listings: db.collection<ListingEntity>('listings'),
             users: db.collection<UserEntity>('users'),
+            client,
         };
     } catch (error) {
         return Promise.reject('could not establish connection to mongodb');

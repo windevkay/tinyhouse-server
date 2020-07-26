@@ -1,4 +1,4 @@
-import { Collection, ObjectId } from 'mongodb';
+import { Collection, ObjectId, MongoClient } from 'mongodb';
 import { people_v1 } from 'googleapis';
 
 export enum ListingType {
@@ -74,6 +74,7 @@ export interface Database {
     bookings: Collection<BookingEntity>;
     listings: Collection<ListingEntity>;
     users: Collection<UserEntity>;
+    client: MongoClient;
 }
 
 export interface GoogleAuthUrl {
