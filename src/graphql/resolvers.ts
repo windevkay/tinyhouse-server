@@ -45,9 +45,9 @@ export const resolvers: IResolvers = {
         //LISTINGS
         listings: async (
             _root: undefined,
-            { filter, limit, page }: ListingsArgs,
+            { location, filter, limit, page }: ListingsArgs,
             { db }: { db: Database },
-        ): Promise<ListingsData> => await listingService.queryListings({ db, filter, limit, page }),
+        ): Promise<ListingsData> => await listingService.queryListings({ db, location, filter, limit, page }),
     },
     Mutation: {
         //AUTH

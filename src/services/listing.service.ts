@@ -1,8 +1,16 @@
 import { ObjectID } from 'mongodb';
 import { Request } from 'express';
 
-import { Database, ListingEntity, ListingsFilter, ListingsData } from '../lib/types';
+import {
+    Database,
+    ListingEntity,
+    ListingsFilter,
+    ListingsData,
+    ListingsGeocodeQuery,
+    GoogleGeocodeResult,
+} from '../lib/types';
 import { authorize } from '../lib/utils';
+import { Google } from './requests';
 
 export class ListingService {
     /**
@@ -32,15 +40,32 @@ export class ListingService {
      */
     public queryListings = async (params: {
         db: Database;
+        location: string | null;
         filter: ListingsFilter;
         limit: number;
         page: number;
     }): Promise<ListingsData> => {
-        const { db, filter, limit, page } = params;
+        const { db, location, filter, limit, page } = params;
         try {
-            const data: ListingsData = { total: 0, result: [] };
+            const query: ListingsGeocodeQuery = {};
+            const data: ListingsData = { region: null, total: 0, result: [] };
 
-            let cursor = await db.listings.find({});
+            if (location) {
+                const { country, admin, city }: GoogleGeocodeResult = await Google.geocode(location);
+                if (city) query.city = city;
+                if (admin) query.admin = admin;
+                if (country) {
+                    query.country = country;
+                } else {
+                    throw new Error('No country found');
+                }
+                //create the region string
+                const cityText = city ? `${city}, ` : '';
+                const adminText = admin ? `${admin}, ` : '';
+                data.region = `${cityText}${adminText}${country}`;
+            }
+            //if query is empty, all listings will be returned, else it will return based on geocode result
+            let cursor = await db.listings.find(query);
 
             if (filter && filter === ListingsFilter.PRICE_LOW_TO_HIGH) {
                 //mongo sort method - 1 for ascending, minus 1 for descending

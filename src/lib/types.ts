@@ -80,6 +80,12 @@ export interface GoogleAuthUrl {
     user: people_v1.Schema$Person;
 }
 
+export interface GoogleGeocodeResult {
+    country: string | null;
+    admin: string | null;
+    city: string | null;
+}
+
 export interface LoginArgs {
     input: LogInInput | null;
 }
@@ -127,12 +133,20 @@ export interface ListingBookingsData {
 }
 
 export interface ListingsArgs {
+    location: string | null;
     filter: ListingsFilter;
     limit: number;
     page: number;
 }
 
 export interface ListingsData {
+    region: string | null;
     total: number;
     result: ListingEntity[];
+}
+
+export interface ListingsGeocodeQuery {
+    country?: string;
+    admin?: string;
+    city?: string;
 }
