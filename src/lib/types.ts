@@ -95,6 +95,10 @@ export interface LogInInput {
     code: string;
 }
 
+export interface ConnectStripeArgs {
+    input: { code: string };
+}
+
 export interface UserArgs {
     id: string;
 }
