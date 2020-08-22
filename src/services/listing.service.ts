@@ -6,13 +6,61 @@ import {
     ListingEntity,
     ListingsFilter,
     ListingsData,
+    ListingType,
     ListingsGeocodeQuery,
     GoogleGeocodeResult,
+    HostListingInput,
 } from '../lib/types';
 import { authorize } from '../lib/utils';
-import { Google } from './requests';
+import { Google, Cloudinary } from './requests';
 
 export class ListingService {
+    /**
+     * Mutation to create a new listing
+     * @param params listing input, db object, request object
+     */
+    public mutationHostListing = async (params: {
+        input: HostListingInput;
+        db: Database;
+        req: Request;
+    }): Promise<ListingEntity> => {
+        const { input, db, req } = params;
+        try {
+            this.middlewareVerifyHostListingInput(input);
+
+            const viewer = await authorize(db, req);
+            if (!viewer) {
+                throw new Error('Viewer cannot be found');
+            }
+
+            const { country, admin, city } = await Google.geocode(input.address);
+            if (!country || !admin || !city) {
+                throw new Error('Invalid address input');
+            }
+            //upload image to cloud
+            const imageUrl = await Cloudinary.upload(input.image);
+
+            //if all is well at this point, then create the listing
+            const insertResult = await db.listings.insertOne({
+                _id: new ObjectID(),
+                ...input,
+                image: imageUrl,
+                bookings: [],
+                bookingsIndex: {},
+                country,
+                admin,
+                city,
+                host: viewer._id,
+            });
+            //associate the listing with the users listings
+            const insertedListing: ListingEntity = insertResult.ops[0];
+            await db.users.updateOne({ _id: viewer._id }, { $push: { listings: insertedListing._id } });
+
+            return Promise.resolve(insertedListing);
+        } catch (error) {
+            return Promise.reject(`Failed to create listing: ${error}`);
+        }
+    };
     /**
      * Query for a single listing by id
      * @param params listing id, db object
@@ -33,7 +81,6 @@ export class ListingService {
             return Promise.reject(`Failed to query listing: ${error}`);
         }
     };
-
     /**
      * Query to return all available listings
      * @param params db object, price filter, pagination limit, page number
@@ -85,6 +132,22 @@ export class ListingService {
             return Promise.resolve(data);
         } catch (error) {
             return Promise.reject(`Failed to query listings: ${error}`);
+        }
+    };
+
+    private middlewareVerifyHostListingInput = (listingInput: HostListingInput) => {
+        const { title, description, type, price } = listingInput;
+        if (title.length > 100) {
+            throw new Error('Listing title must be under 100 characters');
+        }
+        if (description.length > 5000) {
+            throw new Error('Listing description must be under 5000 characters');
+        }
+        if (type !== ListingType.Apartment && type !== ListingType.House) {
+            throw new Error('Listing type must be either an apartment or house');
+        }
+        if (price <= 0) {
+            throw new Error('Listing price must be greater than 0');
         }
     };
 }

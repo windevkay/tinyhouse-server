@@ -155,3 +155,17 @@ export interface ListingsGeocodeQuery {
     admin?: string;
     city?: string;
 }
+
+export interface HostListingInput {
+    title: string;
+    description: string;
+    image: string;
+    type: ListingType;
+    address: string;
+    price: number;
+    numOfGuests: number;
+}
+
+export interface HostListingArgs {
+    input: HostListingInput;
+}

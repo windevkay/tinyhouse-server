@@ -19,6 +19,7 @@ import {
     ListingsArgs,
     ListingsData,
     ConnectStripeArgs,
+    HostListingArgs,
 } from '../lib/types';
 
 import { AuthService, UserService, ListingService } from '../services';
@@ -71,6 +72,12 @@ export const resolvers: IResolvers = {
             _args: undefined,
             { db, req }: { db: Database; req: Request },
         ): Promise<Viewer> => await userService.mutationDisconnectStripe({ db, req }),
+        //LISTINGS
+        hostListing: async (
+            _root: undefined,
+            { input }: HostListingArgs,
+            { db, req }: { db: Database; req: Request },
+        ): Promise<ListingEntity> => await listingService.mutationHostListing({ input, db, req }),
     },
     /**
      * Below we resolve some typescript types properties to typedef fields
