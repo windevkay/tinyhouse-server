@@ -20,13 +20,15 @@ import {
     ListingsData,
     ConnectStripeArgs,
     HostListingArgs,
+    CreateBookingArgs,
 } from '../lib/types';
 
-import { AuthService, UserService, ListingService } from '../services';
+import { AuthService, UserService, ListingService, BookingService } from '../services';
 
 const authService = new AuthService();
 const userService = new UserService();
 const listingService = new ListingService();
+const bookingService = new BookingService();
 
 export const resolvers: IResolvers = {
     Query: {
@@ -78,6 +80,12 @@ export const resolvers: IResolvers = {
             { input }: HostListingArgs,
             { db, req }: { db: Database; req: Request },
         ): Promise<ListingEntity> => await listingService.mutationHostListing({ input, db, req }),
+        //BOOKINGS
+        createBooking: async (
+            _root: undefined,
+            { input }: CreateBookingArgs,
+            { db, req }: { db: Database; req: Request },
+        ): Promise<BookingEntity> => await bookingService.mutationCreateBooking({ input, db, req }),
     },
     /**
      * Below we resolve some typescript types properties to typedef fields
@@ -202,6 +210,9 @@ export const resolvers: IResolvers = {
             { db }: { db: Database },
         ): Promise<ListingEntity | null> => {
             return db.listings.findOne({ _id: booking.listing });
+        },
+        tenant: (booking: BookingEntity, _args: undefined, { db }: { db: Database }): Promise<UserEntity | null> => {
+            return db.users.findOne({ _id: booking.tenant });
         },
     },
 };

@@ -169,3 +169,14 @@ export interface HostListingInput {
 export interface HostListingArgs {
     input: HostListingInput;
 }
+
+export interface CreateBookingInput {
+    id: string;
+    source: string;
+    checkIn: string;
+    checkOut: string;
+}
+
+export interface CreateBookingArgs {
+    input: CreateBookingInput;
+}
